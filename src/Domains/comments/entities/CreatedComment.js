@@ -1,0 +1,18 @@
+class CreatedComment {
+  constructor(payload) {
+    this._verifyPayload(payload);
+
+    this.id = payload.id;
+    this.content = payload.content;
+    this.owner = payload.owner;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _verifyPayload({ id, content, owner }) {
+    if (typeof id !== 'string' || typeof content !== 'string' || typeof owner !== 'string') {
+      throw new Error('CREATED_COMMENT.NOT_MEET_TYPE_SPECIFICATION');
+    }
+  }
+}
+
+module.exports = CreatedComment;

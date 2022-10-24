@@ -1,4 +1,4 @@
-# AUTH API
+# FORUM API
 
 ## Mengenal Struktur Proyek
 Proyek Auth API akan memiliki empat struktur folder besar, yaitu **Domains**, **Applications**, **Interfaces**, dan **Infrastructures**

@@ -1,4 +1,6 @@
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const CommonsTestHelper = require('../../../../tests/CommonsTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const container = require('../../container');
@@ -11,6 +13,7 @@ describe('HTTP server', () => {
   });
 
   afterEach(async () => {
+    await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
@@ -385,26 +388,6 @@ describe('HTTP server', () => {
   });
 
   describe('when POST /threads', () => {
-    const getAccessToken = async (server) => {
-      const userPayload = {
-        username: 'dicoding',
-        password: 'secret',
-        fullname: 'Dicoding Indonesia',
-      };
-      await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: userPayload,
-      });
-      const authResponse = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: { username: userPayload.username, password: userPayload.password },
-      });
-
-      return JSON.parse(authResponse.payload).data.accessToken;
-    };
-
     it('should response 401 when provide no authentications', async () => {
       // Arrange
       const requestPayload = {
@@ -434,8 +417,8 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** create credentials */
-      const accessToken = await getAccessToken(server);
+      /** prerequiresite */
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
 
       // Action
       const response = await server.inject({
@@ -462,8 +445,8 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** create credentials */
-      const accessToken = await getAccessToken(server);
+      /** prerequiresite */
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
 
       // Action
       const response = await server.inject({
@@ -480,6 +463,221 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedThread).toBeDefined();
+    });
+  });
+
+  describe('when POST /threads/{threadId}/comments', () => {
+    it('should response 401 when provide no authentications', async () => {
+      // Arrange
+      const requestPayload = {
+        content: 'Pertamax',
+      };
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-123/comments',
+        payload: requestPayload,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const requestPayload = {
+        content: 'Pertamax',
+      };
+      const server = await createServer(container);
+
+      /** prerequiresite */
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-123/comments',
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeTruthy();
+    });
+
+    it('should response 400 when invalid payload', async () => {
+      // Arrange
+      const threadPayload = {
+        title: 'judul',
+        body: 'ini kontent',
+      };
+      const requestPayload = {
+        content: ['Pertamax'],
+      };
+      const server = await createServer(container);
+
+      /** prerequiresite */
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
+      const {
+        id: threadId,
+      } = await CommonsTestHelper.postThread(server, accessToken, threadPayload);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeTruthy();
+    });
+
+    it('should response 201 and persisted comment', async () => {
+      // Arrange
+      const threadPayload = {
+        title: 'judul',
+        body: 'ini kontent',
+      };
+      const requestPayload = {
+        content: 'Pertamax',
+      };
+      const server = await createServer(container);
+
+      /** prerequiresite */
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
+      const {
+        id: threadId,
+      } = await CommonsTestHelper.postThread(server, accessToken, threadPayload);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(201);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.addedComment).toBeDefined();
+    });
+  });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should response 401 when provide no authentications', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/xxx/comments/comment-123',
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      // Arrange
+      const server = await createServer(container);
+      const accessToken = await CommonsTestHelper.getAccessToken(server);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/xxx/comments/comment-123',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeDefined();
+    });
+
+    it('should response 403 when not comment owner', async () => {
+      // Arrange
+      const threadPayload = {
+        title: 'judul',
+        body: 'Isi kontent',
+      };
+      const server = await createServer(container);
+      const accessTokenDicodiing = await CommonsTestHelper.getAccessToken(server);
+      const { id: threadId } = await CommonsTestHelper
+        .postThread(server, accessTokenDicodiing, threadPayload);
+      const { id: commentId } = await CommonsTestHelper
+        .postComment(server, accessTokenDicodiing, threadId, { content: 'Pertamax' });
+      const accesTokenJohn = await CommonsTestHelper
+        .getAccessToken(server, { username: 'john', password: 'pass', fullname: 'John' });
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${accesTokenJohn}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeDefined();
+    });
+
+    it('should response 200 when delete comment', async () => {
+      // Arrange
+      const threadPayload = {
+        title: 'judul',
+        body: 'Isi kontent',
+      };
+      const server = await createServer(container);
+      const accessTokenDicodiing = await CommonsTestHelper.getAccessToken(server);
+      const { id: threadId } = await CommonsTestHelper
+        .postThread(server, accessTokenDicodiing, threadPayload);
+      const { id: commentId } = await CommonsTestHelper
+        .postComment(server, accessTokenDicodiing, threadId, { content: 'Pertamax' });
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${accessTokenDicodiing}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
     });
   });
 });
