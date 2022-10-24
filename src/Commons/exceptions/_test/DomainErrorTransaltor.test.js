@@ -1,3 +1,4 @@
+const AuthorizationError = require('../AuthorizationError');
 const DomainErrorTranslator = require('../DomainErrorTranslator');
 const InvariantError = require('../InvariantError');
 
@@ -15,6 +16,10 @@ describe('DomainErrorTranslator', () => {
       .toStrictEqual(new InvariantError('Kredensial yang anda berikan salah'));
     expect(DomainErrorTranslator.translate(new Error('AUTHENTICATION.NOT_MEET_DATA_TYPE_SPECIFICATION')))
       .toStrictEqual(new InvariantError('Kredensial yang anda berikan salah'));
+    expect(DomainErrorTranslator.translate(new Error('CREATE_COMMENT.NOT_MEET_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena properti yang dibutuhkan tidak ada'));
+    expect(DomainErrorTranslator.translate(new Error('DELETE_COMMENT_USE_CASE.NOT_COMMENT_OWNER')))
+      .toStrictEqual(new AuthorizationError('hanya pemilik komentar yang bisa menghapus komentar tersebut'));
   });
 
   it('should return original error when error message is not needed to translate', () => {

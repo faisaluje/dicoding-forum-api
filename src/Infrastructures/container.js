@@ -20,6 +20,7 @@ const RefreshAccessTokenUseCase = require('../Applications/use_cases/RefreshAcce
 const DeleteRefreshTokenUseCase = require('../Applications/use_cases/DeleteRefreshTokenUseCase');
 const AddThreadUseCase = require('../Applications/use_cases/AddThreadUseCase');
 const CommentsUseCase = require('../Applications/use_cases/CommentsUseCase');
+const GetThreadDetailUseCase = require('../Applications/use_cases/GetThreadDetailUseCase');
 
 const passwordHelper = new BcryptPasswordHelper(bcrypt);
 const tokenManager = new JwtTokenManager();
@@ -59,6 +60,10 @@ const useCaseInstanceContainer = {
     threadRepository,
   }),
   commentsUseCase: new CommentsUseCase({
+    threadRepository,
+    commentRepository,
+  }),
+  getThreadDetailUseCase: new GetThreadDetailUseCase({
     threadRepository,
     commentRepository,
   }),

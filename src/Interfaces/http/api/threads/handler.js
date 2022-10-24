@@ -5,6 +5,7 @@ class ThreadsHandler {
     this._container = container;
 
     this.postThreadHandler = this.postThreadHandler.bind(this);
+    this.getThreadHandler = this.getThreadHandler.bind(this);
   }
 
   async postThreadHandler(request, h) {
@@ -23,6 +24,18 @@ class ThreadsHandler {
       status: 'success',
       data: { addedThread },
     }).code(201);
+  }
+
+  async getThreadHandler(request) {
+    const { getThreadDetailUseCase } = this._container;
+    const { threadId } = request.params;
+
+    const thread = await getThreadDetailUseCase.execute(threadId);
+
+    return {
+      status: 'success',
+      data: { thread },
+    };
   }
 }
 

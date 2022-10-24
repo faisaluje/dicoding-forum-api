@@ -106,4 +106,17 @@ describe('CommentReopsitoryPostgres', () => {
       await expect(() => commentRepositoryPostgres.deleteComment('comment-oke')).not.toThrow();
     });
   });
+
+  describe('getComments function', () => {
+    it('should return array of comments', async () => {
+      // Arrange
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const comments = await commentRepositoryPostgres.getComments('thread-123');
+
+      // Assert
+      expect(comments).toEqual([]);
+    });
+  });
 });

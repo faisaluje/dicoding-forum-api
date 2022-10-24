@@ -1,11 +1,21 @@
 const DeleteComment = require('../DeleteComment');
 
 describe('a deleteComment entities', () => {
+  it('should throw error when payload did not contain needed property', () => {
+    // Arrange
+    const payload = {
+      commentId: ['sss'],
+    };
+
+    // Action and Assert
+    expect(() => new DeleteComment(payload)).toThrowError('DELETE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
   it('should throw error when payload did not meet type specification', () => {
     // Arrange
     const payload = {
       userId: 123,
-      commentId: undefined,
+      commentId: ['sss'],
     };
 
     // Action & Assert1

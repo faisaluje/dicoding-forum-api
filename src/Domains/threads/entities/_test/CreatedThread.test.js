@@ -1,12 +1,23 @@
 const CreatedThread = require('../CreatedThread');
 
 describe('a CreatedThread entities', () => {
+  it('should throw error when payload did not contain needed property', () => {
+    // Arrange
+    const payload = {
+      id: '123',
+      title: 'judl',
+    };
+
+    // Action and Assert
+    expect(() => new CreatedThread(payload)).toThrowError('CREATED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
   it('should throw error when payload not meet type specification', () => {
     // Arrange
     const payload = {
       id: 123,
       title: ['judl'],
-      owner: undefined,
+      owner: 982,
     };
 
     // Action & Assert

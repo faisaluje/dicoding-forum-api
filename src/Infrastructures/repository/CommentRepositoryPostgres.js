@@ -1,6 +1,7 @@
 const InvariantError = require('../../Commons/exceptions/InvariantError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
+const Comment = require('../../Domains/comments/entities/Comment');
 const CreatedComment = require('../../Domains/comments/entities/CreatedComment');
 
 class CommentReopsitoryPostgres extends CommentRepository {
@@ -47,6 +48,25 @@ class CommentReopsitoryPostgres extends CommentRepository {
     if (!result.rows.length) {
       throw new InvariantError('Gagal menghapus komentar, id tidak ditemukan');
     }
+  }
+
+  async getComments(threadId) {
+    const query = {
+      text: `SELECT comments.id, users.username, comments.date, comments.content, comments.is_deleted
+      FROM comments 
+      JOIN users on users.id = comments.owner
+      WHERE comments.thread_id = $1
+      ORDER BY comments.date`,
+      values: [threadId],
+    };
+    const result = await this._pool.query(query);
+
+    return result.rows.map((row) => new Comment({
+      id: row.id,
+      username: row.username,
+      date: row.date.toISOString(),
+      content: row.is_deleted ? '**komentar telah dihapus**' : row.content,
+    }));
   }
 }
 

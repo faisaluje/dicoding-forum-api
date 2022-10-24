@@ -9,6 +9,10 @@ class CreatedComment {
 
   // eslint-disable-next-line class-methods-use-this
   _verifyPayload({ id, content, owner }) {
+    if (!id || !content || !owner) {
+      throw new Error('CREATED_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+    }
+
     if (typeof id !== 'string' || typeof content !== 'string' || typeof owner !== 'string') {
       throw new Error('CREATED_COMMENT.NOT_MEET_TYPE_SPECIFICATION');
     }

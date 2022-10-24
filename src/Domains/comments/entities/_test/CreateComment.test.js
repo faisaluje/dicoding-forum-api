@@ -1,11 +1,22 @@
 const CreateComment = require('../CreateComment');
 
 describe('a CreateComment entities', () => {
+  it('should throw error when payload did not contain needed property', () => {
+    // Arrange
+    const payload = {
+      threadId: 123,
+      content: 'isinya',
+    };
+
+    // Action and Assert
+    expect(() => new CreateComment(payload)).toThrowError('CREATE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
   it('should throw error when payload did not meet type specification', () => {
     // Arrange
     const payload = {
       threadId: 123,
-      content: undefined,
+      content: 'isinya',
       owner: ['user-123'],
     };
 

@@ -417,7 +417,7 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** prerequiresite */
+      /** prerequisite */
       const accessToken = await CommonsTestHelper.getAccessToken(server);
 
       // Action
@@ -445,7 +445,7 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** prerequiresite */
+      /** prerequisite */
       const accessToken = await CommonsTestHelper.getAccessToken(server);
 
       // Action
@@ -494,7 +494,7 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** prerequiresite */
+      /** prerequisite */
       const accessToken = await CommonsTestHelper.getAccessToken(server);
 
       // Action
@@ -525,7 +525,7 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** prerequiresite */
+      /** prerequisite */
       const accessToken = await CommonsTestHelper.getAccessToken(server);
       const {
         id: threadId,
@@ -559,7 +559,7 @@ describe('HTTP server', () => {
       };
       const server = await createServer(container);
 
-      /** prerequiresite */
+      /** prerequisite */
       const accessToken = await CommonsTestHelper.getAccessToken(server);
       const {
         id: threadId,
@@ -678,6 +678,51 @@ describe('HTTP server', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
+    });
+  });
+
+  describe('when GET /threads/{threadId}', () => {
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/threads/xxxxx',
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeTruthy();
+    });
+
+    it('should response 200 and provide thread detail', async () => {
+      // Arrange
+      const userId = 'user-xyz';
+      const threadId = 'thread-bcx';
+
+      await UsersTableTestHelper.addUser({ id: userId });
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+      await CommentsTableTestHelper.addComent({ threadId, owner: userId, id: 'comment-1' });
+      await CommentsTableTestHelper.addComent({ threadId, owner: userId, id: 'comment-2' });
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(2);
     });
   });
 });

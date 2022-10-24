@@ -27,7 +27,7 @@ class CommentsHandler {
     }).code(201);
   }
 
-  async deleteCommentHandler(request, h) {
+  async deleteCommentHandler(request) {
     const { commentsUseCase } = this._container;
     const { commentId } = request.params;
     const { id: credentialId } = request.auth.credentials;
@@ -38,9 +38,9 @@ class CommentsHandler {
 
     await commentsUseCase.deleteComment(deleteComment);
 
-    return h.response({
+    return {
       status: 'success',
-    });
+    };
   }
 }
 
