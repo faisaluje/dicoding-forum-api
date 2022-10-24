@@ -1,3 +1,4 @@
+const AuthorizationError = require('./AuthorizationError');
 const InvariantError = require('./InvariantError');
 
 const DomainErrorTranslator = {
@@ -15,6 +16,8 @@ DomainErrorTranslator._directories = {
   'AUTHENTICATION.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('Kredensial yang anda berikan salah'),
   'CREATE_THREAD.NOT_MEET_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada'),
   'CREATE_THREAD.TITLE_LIMIT_CHAR': new InvariantError('tidak dapat membuat thread baru karena karakter title melebihi batas limit'),
+  'CREATE_COMMENT.NOT_MEET_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat comment baru karena properti yang dibutuhkan tidak ada'),
+  'DELETE_COMMENT_USE_CASE.NOT_COMMENT_OWNER': new AuthorizationError('hanya pemilik komentar yang bisa menghapus komentar tersebut'),
 };
 
 module.exports = DomainErrorTranslator;

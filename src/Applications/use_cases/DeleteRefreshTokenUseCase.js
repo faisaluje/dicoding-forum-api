@@ -4,11 +4,16 @@ class DeleteRefreshTokenUseCase {
   }
 
   async execute(refreshToken) {
+    this._validateRefreshToken(refreshToken);
+
+    await this._authenticationRepository.deleteToken(refreshToken);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _validateRefreshToken(refreshToken) {
     if (typeof refreshToken !== 'string') {
       throw new Error('DELETE_REFRESH_TOKEN_USE_CASE.INVALID_REFRESH_TOKEN');
     }
-
-    await this._authenticationRepository.deleteToken(refreshToken);
   }
 }
 
