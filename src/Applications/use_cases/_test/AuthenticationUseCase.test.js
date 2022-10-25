@@ -29,7 +29,7 @@ describe('AuthenticationUseCase', () => {
 
     /** mocking needed function */
     mockUserRepository.getUserCredential = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedUserCredential));
+      .mockImplementation(() => Promise.resolve({ id: 'user-xxx', username: 'faisaluje', password: 'encrypted_password' }));
     mockPasswordHelper.verify = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockTokenManager.generateAccessToken = jest.fn()

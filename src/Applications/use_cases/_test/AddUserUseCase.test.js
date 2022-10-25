@@ -14,8 +14,8 @@ describe('AddUserUseCase', () => {
     };
     const expectedRegisteredUser = new RegisteredUser({
       id: 'user-123',
-      username: useCasePayload.username,
-      fullname: useCasePayload.fullname,
+      username: 'dicoding',
+      fullname: 'Dicoding Indonesia',
     });
 
     /** creating dependency of use case */
@@ -28,7 +28,11 @@ describe('AddUserUseCase', () => {
     mockPasswordHelper.hash = jest.fn()
       .mockImplementation(() => Promise.resolve('encrypted_password'));
     mockUserRepository.addUser = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedRegisteredUser));
+      .mockImplementation(() => Promise.resolve({
+        id: 'user-123',
+        username: 'dicoding',
+        fullname: 'Dicoding Indonesia',
+      }));
 
     /** creating use case instance */
     const addUserUseCase = new AddUserUseCase({

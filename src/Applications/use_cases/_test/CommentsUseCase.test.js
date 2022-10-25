@@ -27,7 +27,11 @@ describe('CommentsUseCase', () => {
       mockThreadRepository.verifyThread = jest.fn()
         .mockImplementation(() => Promise.resolve());
       mockCommentRepository.addComment = jest.fn()
-        .mockImplementation(() => Promise.resolve(expectedCreatedComment));
+        .mockImplementation(() => Promise.resolve({
+          id: 'comment-123',
+          content: 'Pertamax GAN!',
+          owner: 'user-123',
+        }));
 
       /** creating use case instance */
       const commentsUseCase = new CommentsUseCase({
