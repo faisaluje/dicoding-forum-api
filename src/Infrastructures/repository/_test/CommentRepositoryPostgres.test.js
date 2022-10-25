@@ -4,7 +4,6 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const CreateComment = require('../../../Domains/comments/entities/CreateComment');
-const CreatedComment = require('../../../Domains/comments/entities/CreatedComment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
@@ -61,11 +60,11 @@ describe('CommentReopsitoryPostgres', () => {
       const createdComment = await commentRepositoryPostgres.addComment(createComment);
 
       // Assert
-      expect(createdComment).toStrictEqual(new CreatedComment({
+      expect(createdComment).toStrictEqual({
         id: 'comment-123',
         content: 'PERTAMAX',
         owner: userId,
-      }));
+      });
     });
   });
 
@@ -103,7 +102,9 @@ describe('CommentReopsitoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(() => commentRepositoryPostgres.deleteComment('comment-oke')).not.toThrow();
+      await expect(commentRepositoryPostgres.deleteComment('comment-oke')).resolves.not.toThrow();
+      const comments = await CommentsTableTestHelper.findCommentsById('comment-oke');
+      expect(comments[0].is_deleted).toEqual(1);
     });
   });
 

@@ -11,7 +11,6 @@ describe('CommentsUseCase', () => {
       const useCasePayload = {
         threadId: 'thread-123',
         content: 'Pertamax GAN!',
-        owner: 'user-123',
       };
       const expectedCreatedComment = new CreatedComment({
         id: 'comment-123',
@@ -40,7 +39,7 @@ describe('CommentsUseCase', () => {
       });
 
       // Action
-      const createdComment = await commentsUseCase.addComment(useCasePayload);
+      const createdComment = await commentsUseCase.addComment('user-123', useCasePayload);
 
       // Assert
       expect(createdComment).toStrictEqual(expectedCreatedComment);
@@ -56,10 +55,8 @@ describe('CommentsUseCase', () => {
   describe('deleteComment function', () => {
     it('should throw error when delete comment not belong to user', async () => {
       // Arrange
-      const useCasePayload = {
-        userId: 'user-123',
-        commentId: 'comment-123',
-      };
+      const userId = 'user-123';
+      const commentId = 'comment-123';
 
       /** creating dependency of use case */
       const mockCommentRepository = new CommentRepository();
@@ -74,16 +71,14 @@ describe('CommentsUseCase', () => {
       });
 
       // Action & Assert
-      await expect(() => commentsUseCase.deleteComment(useCasePayload)).rejects.toThrowError('DELETE_COMMENT_USE_CASE.NOT_COMMENT_OWNER');
+      await expect(() => commentsUseCase.deleteComment(userId, commentId)).rejects.toThrowError('DELETE_COMMENT_USE_CASE.NOT_COMMENT_OWNER');
       expect(mockCommentRepository.verifyComment).toBeCalledWith('comment-123');
     });
 
     it('should orchestrating the delete comment action correctly', async () => {
       // Arrange
-      const useCasePayload = {
-        userId: 'user-123',
-        commentId: 'comment-123',
-      };
+      const userId = 'user-123';
+      const commentId = 'comment-123';
 
       /** creating dependency of use case */
       const mockCommentRepository = new CommentRepository();
@@ -99,10 +94,8 @@ describe('CommentsUseCase', () => {
         commentRepository: mockCommentRepository,
       });
 
-      // Action
-      await commentsUseCase.deleteComment(useCasePayload);
-
-      // Assert
+      // Action & Assert
+      await expect(commentsUseCase.deleteComment(userId, commentId)).resolves.not.toThrowError();
       expect(mockCommentRepository.verifyComment).toBeCalledWith('comment-123');
       expect(mockCommentRepository.deleteComment).toBeCalledWith('comment-123');
     });

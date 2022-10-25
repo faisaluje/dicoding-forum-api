@@ -1,18 +1,29 @@
+const CreateComment = require('../../Domains/comments/entities/CreateComment');
+const CreatedComment = require('../../Domains/comments/entities/CreatedComment');
+const DeleteComment = require('../../Domains/comments/entities/DeleteComment');
+
 class CommentsUseCase {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
   }
 
-  async addComment(createComment) {
+  async addComment(owner, payload) {
+    const createComment = new CreateComment({
+      threadId: payload.threadId,
+      content: payload.content,
+      owner,
+    });
     await this._threadRepository.verifyThread(createComment.threadId);
 
-    return this._commentRepository.addComment(createComment);
+    const createdComment = await this._commentRepository.addComment(createComment);
+
+    return new CreatedComment(createdComment);
   }
 
-  async deleteComment(deleteComment) {
-    const { userId, commentId } = deleteComment;
-    const { owner } = await this._commentRepository.verifyComment(commentId);
+  async deleteComment(userId, commentId) {
+    const deleteComent = new DeleteComment({ userId, commentId });
+    const { owner } = await this._commentRepository.verifyComment(deleteComent.commentId);
     if (owner !== userId) {
       throw new Error('DELETE_COMMENT_USE_CASE.NOT_COMMENT_OWNER');
     }

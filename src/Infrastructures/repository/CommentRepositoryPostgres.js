@@ -1,8 +1,6 @@
 const InvariantError = require('../../Commons/exceptions/InvariantError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const Comment = require('../../Domains/comments/entities/Comment');
-const CreatedComment = require('../../Domains/comments/entities/CreatedComment');
 
 class CommentReopsitoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -21,7 +19,7 @@ class CommentReopsitoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return new CreatedComment({ ...result.rows[0] });
+    return result.rows[0];
   }
 
   async verifyComment(commentId) {
@@ -61,12 +59,7 @@ class CommentReopsitoryPostgres extends CommentRepository {
     };
     const result = await this._pool.query(query);
 
-    return result.rows.map((row) => new Comment({
-      id: row.id,
-      username: row.username,
-      date: row.date.toISOString(),
-      content: row.is_deleted ? '**komentar telah dihapus**' : row.content,
-    }));
+    return result.rows;
   }
 }
 

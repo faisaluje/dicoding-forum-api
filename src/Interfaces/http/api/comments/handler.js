@@ -1,6 +1,3 @@
-const CreateComment = require('../../../../Domains/comments/entities/CreateComment');
-const DeleteComment = require('../../../../Domains/comments/entities/DeleteComment');
-
 class CommentsHandler {
   constructor(container) {
     this._container = container;
@@ -14,12 +11,8 @@ class CommentsHandler {
     const { threadId } = request.params;
     const { content } = request.payload;
     const { id: credentialId } = request.auth.credentials;
-    const createComment = new CreateComment({
-      threadId,
-      content,
-      owner: credentialId,
-    });
-    const addedComment = await commentsUseCase.addComment(createComment);
+
+    const addedComment = await commentsUseCase.addComment(credentialId, { threadId, content });
 
     return h.response({
       status: 'success',
@@ -31,12 +24,8 @@ class CommentsHandler {
     const { commentsUseCase } = this._container;
     const { commentId } = request.params;
     const { id: credentialId } = request.auth.credentials;
-    const deleteComment = new DeleteComment({
-      userId: credentialId,
-      commentId,
-    });
 
-    await commentsUseCase.deleteComment(deleteComment);
+    await commentsUseCase.deleteComment(credentialId, commentId);
 
     return {
       status: 'success',

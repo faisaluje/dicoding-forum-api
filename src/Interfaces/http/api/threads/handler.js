@@ -1,5 +1,3 @@
-const CreateThread = require('../../../../Domains/threads/entities/CreateThread');
-
 class ThreadsHandler {
   constructor(container) {
     this._container = container;
@@ -10,15 +8,9 @@ class ThreadsHandler {
 
   async postThreadHandler(request, h) {
     const { addThreadUseCase } = this._container;
-    const { title, body } = request.payload;
     const { id: credentialId } = request.auth.credentials;
-    const createThread = new CreateThread({
-      title,
-      body,
-      owner: credentialId,
-    });
 
-    const addedThread = await addThreadUseCase.execute(createThread);
+    const addedThread = await addThreadUseCase.execute(credentialId, request.payload);
 
     return h.response({
       status: 'success',

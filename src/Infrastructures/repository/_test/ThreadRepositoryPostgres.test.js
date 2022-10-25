@@ -1,9 +1,7 @@
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const CreatedThread = require('../../../Domains/threads/entities/CreatedThread');
 const CreateThread = require('../../../Domains/threads/entities/CreateThread');
-const ThreadDetail = require('../../../Domains/threads/entities/ThreadDetail');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
@@ -57,11 +55,11 @@ describe('ThreadRepositoryPostgres', () => {
       const createdThread = await threadRepositoryPostgres.addThread(createThread);
 
       // Assert
-      expect(createdThread).toStrictEqual(new CreatedThread({
+      expect(createdThread).toStrictEqual({
         id: 'thread-123',
         title: 'Thread Pertama',
         owner: userId,
-      }));
+      });
     });
   });
 
@@ -95,14 +93,19 @@ describe('ThreadRepositoryPostgres', () => {
 
     it('should return thread detail', async () => {
       // Arrange
-      await ThreadsTableTestHelper.addThread({});
+      const date = new Date();
+      await ThreadsTableTestHelper.addThread({ date });
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
 
       // Action
       const threadDetail = await threadRepositoryPostgres.getThreadById('thread-123');
 
       // Assert
-      expect(threadDetail).toBeInstanceOf(ThreadDetail);
+      expect(threadDetail.id).toEqual('thread-123');
+      expect(threadDetail.title).toEqual('Dicoding');
+      expect(threadDetail.body).toEqual('Thread dicoding');
+      expect(threadDetail.date).toStrictEqual(date);
+      expect(threadDetail.username).toEqual('dicoding');
     });
   });
 });

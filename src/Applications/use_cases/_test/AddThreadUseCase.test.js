@@ -9,7 +9,6 @@ describe('AddThreadUseCase', () => {
     const useCasePayload = {
       title: 'Thread Pertama',
       body: 'Ini adalah thread pertamaku di forum tercinta ini',
-      owner: 'user-123',
     };
     const expectedCreatedThread = new CreatedThread({
       id: 'thread-123',
@@ -34,7 +33,7 @@ describe('AddThreadUseCase', () => {
     });
 
     // Action
-    const createdThread = await addThreadUseCase.execute(useCasePayload);
+    const createdThread = await addThreadUseCase.execute('user-123', useCasePayload);
 
     // Assert
     expect(createdThread).toStrictEqual(expectedCreatedThread);
