@@ -83,7 +83,7 @@ describe('CommentReopsitoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(() => commentRepositoryPostgres.verifyComment('comment-oke')).not.toThrow();
+      await expect(commentRepositoryPostgres.verifyComment('comment-oke')).resolves.not.toThrow();
     });
   });
 
@@ -103,6 +103,7 @@ describe('CommentReopsitoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.deleteComment('comment-oke')).resolves.not.toThrow();
+
       const comments = await CommentsTableTestHelper.findCommentsById('comment-oke');
       expect(comments[0].is_deleted).toEqual(1);
     });

@@ -12,6 +12,7 @@ describe('a ThreadDetail entities', () => {
     // Action and Assert
     expect(() => new ThreadDetail(payload)).toThrowError('THREAD_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY');
   });
+
   it('should throw error when payload did not meet type specification', () => {
     // Arrange
     const payload = {
@@ -25,5 +26,30 @@ describe('a ThreadDetail entities', () => {
 
     // Action & Assert
     expect(() => new ThreadDetail(payload)).toThrowError('THREAD_DETAIL.NOT_MEET_TYPE_SPECIFICATION');
+  });
+
+  it('should create threadDetail object correctly', () => {
+    // Arrange
+    const payload = {
+      id: 'thread-123',
+      title: 'judul',
+      body: 'kuy',
+      date: new Date().toISOString(),
+      username: 'john',
+      comments: [],
+    };
+
+    // Action
+    const {
+      id, title, body, date, username, comments,
+    } = new ThreadDetail(payload);
+
+    // Assert
+    expect(id).toEqual(payload.id);
+    expect(title).toEqual(payload.title);
+    expect(body).toEqual(payload.body);
+    expect(date).toEqual(payload.date);
+    expect(username).toEqual(payload.username);
+    expect(comments).toHaveLength(0);
   });
 });
